@@ -1,0 +1,153 @@
+using System;
+using System.Collections.Generic;
+
+namespace SimpleBT
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Hello World!");
+            int[] inpArr = Array.ConvertAll<string, int>(Console.ReadLine().Split(' '), x => Convert.ToInt32(x));
+            var dic = new Dictionary<int, int?>();
+            Int32 len = (Int32)Math.Pow(inpArr.Length, 2);
+            var arr = new int?[len]; 
+
+            GenerateBT(inpArr,dic);
+            GenerateBT(inpArr, arr);
+
+            PrintBT(dic);
+            PrintBT(arr);
+
+            Console.WriteLine("array BT height: {0}",getHeight(arr, 0));
+            Console.WriteLine("dic BT height: {0}",getHeight(dic, 0));
+
+            Console.ReadLine();
+
+        }
+
+        private static void PrintBT(Dictionary<int, int?> dic)
+        {
+            foreach (var item in dic)
+            {
+                Console.WriteLine("{0}:{1}", item.Key, item.Value);
+            }
+        }
+        private static void PrintBT(int?[] arr)
+        {
+            foreach (var item in arr)
+            {
+                Console.WriteLine("{0}:{1}", item.GetHashCode(), item);
+            }
+        }
+        private static Dictionary<int,int?> GenerateBT(int[] inpArr, Dictionary<int, int?> dic)
+        {
+
+            foreach (var item in inpArr)
+            {
+                if (dic.Count == 0)
+                    dic.Add(0, item);
+                else
+                {
+                    for (var i = 0; dic.Count < inpArr.Length; i++)
+                    {
+                        if (dic.ContainsKey(i) && item > dic.GetValueOrDefault(i))
+                        {
+                            var tempInt = 2 * i + 2;
+                            if (!dic.ContainsKey(tempInt))
+                            {
+                                dic.Add(tempInt, item);
+                                break;
+                            }
+                            else i = tempInt - 1;
+                        }
+                        else
+                        {
+                            var tempInt = 2 * i + 1;
+                            if (!dic.ContainsKey(tempInt))
+                            {
+                                dic.Add(tempInt, item);
+                                break;
+                            }
+                            else i = tempInt - 1;
+                        }
+                    }
+                }
+            }
+            return dic;
+        }
+
+        private static int?[] GenerateBT(int[] inpArr, int?[] arr)
+        {
+            Int32 len = arr.Length;
+
+            foreach (var item in inpArr)
+            {
+                if (arr[0] == null)
+                    arr[0] = item;
+                else
+                {
+                    for (var i = 0; i<len; i++)
+                    {
+                        if (item > arr[i])
+                        {
+                            var tempInt = 2 * i + 2;
+                            if (tempInt < len && arr[tempInt] == null)
+                            {
+                                arr[tempInt] = item;
+                                break;
+                            }
+                            else i = tempInt - 1;
+                        }
+                        else
+                        {
+                            var tempInt = 2 * i + 1;
+                            if (tempInt < len && arr[tempInt] == null)
+                            {
+                                arr[tempInt] = item;
+                                break;
+                            }
+                            else i = tempInt - 1;
+                        }
+                    }
+                }
+            }
+            return arr;
+        }
+
+
+        static int getHeight(int?[] arr,int i)
+        {
+            //if (i == 0 && arr.Length>0)
+            //    getHeight(arr, ++i);
+            var rIndex = (2 * i) + 2;
+            var lIndex = (2 * i) + 1;
+            int lh = 0, rh = 0;
+            if (arr[lIndex] != null)
+                rh = getHeight(arr, lIndex);
+            if(arr[rIndex] !=null)
+                lh = getHeight(arr, rIndex);
+
+            return 1 + Math.Max(rh, lh);
+        }
+        static int getHeight(Dictionary<int,int?> dic, int i)
+        {
+            var rIndex = (2 * i) + 2;
+            var lIndex = (2 * i) + 1;
+            int lh = 0, rh = 0;
+            if (dic.ContainsKey(lIndex))
+            {
+                lh = getHeight(dic, lIndex);
+                Console.WriteLine("lIndex {0}:{1}", i, lh);
+            }
+            if (dic.ContainsKey(rIndex))
+            {
+                rh = getHeight(dic, rIndex);
+                Console.WriteLine("rIndex {0}:{1}", rIndex, rh);
+            }
+
+            return 1 + Math.Max(rh, lh);
+        }
+
+    }
+}
